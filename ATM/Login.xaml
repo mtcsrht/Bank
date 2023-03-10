@@ -5,14 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ATM"
         mc:Ignorable="d"
-        Title="ATM" Height="450" Width="800">
-    <Grid>
-        <Label Content="Welcome to MaBank" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Bahnschrift" FontSize="24" Height="58" Width="288"/>
-        <TextBox HorizontalAlignment="Center" Margin="0,157,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="142" Height="23"/>
-        <Label Content="Account number:" HorizontalAlignment="Left" Margin="329,131,0,0" VerticalAlignment="Top" Width="113"/>
-        <Label Content="Password: " HorizontalAlignment="Left" Margin="329,199,0,0" VerticalAlignment="Top" Width="113"/>
-        <TextBox HorizontalAlignment="Center" Margin="0,225,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="142" Height="23"/>
-        <Button Content="Login" HorizontalAlignment="Center" Margin="0,286,0,0" VerticalAlignment="Top" Height="25" Width="84"/>
+        Title="ATM" Height="600" Width="1200">
+    <Grid Background="#FF0B0D21">
+        <Label Content="Welcome to MaBank" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Bahnschrift" FontSize="24" Height="58" Width="288" Foreground="White"/>
+        <Grid HorizontalAlignment="Center" Height="52" Margin="0,128,0,0" VerticalAlignment="Top">
+            <TextBox x:Name="TXT_Account" HorizontalAlignment="Left" Margin="0,29,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="142" Height="23" TextChanged="TXT_Account_TextChanged"/>
+            <Label Content="Account number:" HorizontalAlignment="Left" VerticalAlignment="Top" Width="113" Foreground="White" FontFamily="Bahnschrift"/>
+        </Grid>
+        <Grid HorizontalAlignment="Center" Height="52" Margin="0,196,0,0" VerticalAlignment="Top" Width="142">
+            <Label Content="Password: " HorizontalAlignment="Left" VerticalAlignment="Top" Width="113" FontFamily="Bahnschrift" Foreground="White"/>
+            <PasswordBox x:Name="PSWD_Passwd" HorizontalAlignment="Center" Margin="0,24,0,0" VerticalAlignment="Top" Width="142" Height="23" Password=""/>
+
+        </Grid>
+
+        <Button x:Name="BTN_Login" Content="Login" HorizontalAlignment="Center" Margin="0,286,0,0" VerticalAlignment="Top" Height="25" Width="84" BorderBrush="White" Background="#FF0B0D21" Foreground="White" Click="BTN_Login_Click">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10"></Setter>
+                </Style>
+            </Button.Resources>
+            <Button.Style>
+                <Style>
+                    <Style.Triggers>
+                        <Trigger Property="Button.IsMouseOver" Value="True">
+                            <Setter Property="Button.Background" Value="#B20B0D21"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+            </Button.Style>
+
+        </Button>
 
     </Grid>
 </Window>
