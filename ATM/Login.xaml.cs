@@ -17,9 +17,9 @@ using System.Security.Cryptography;
 
 namespace ATM
 {
-    public partial class MainWindow : Window
+    public partial class Login : Page
     {
-        public MainWindow()
+        public Login()
         {
             InitializeComponent();
         }
@@ -58,7 +58,7 @@ namespace ATM
                 else
                 {
                     UserUI ui = new UserUI(firstName, lastName);
-                    this.Content = ui;
+                    this.NavigationService.Navigate(ui);
                 }
             }
 

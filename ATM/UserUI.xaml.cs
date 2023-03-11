@@ -42,7 +42,7 @@ namespace ATM
 
         private void BTN_Logout_Click(object sender, RoutedEventArgs e)
         {
-
+            this.NavigationService.Navigate(new Uri("Login.xaml",UriKind.Relative));
         }
     }
 }
