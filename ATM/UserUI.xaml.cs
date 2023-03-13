@@ -20,14 +20,12 @@ namespace ATM
     /// </summary>
     public partial class UserUI : Page
     {
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public UserUI(string firstNameIn, string lastNameIn)
+        public string accountNumber;
+        public UserUI(string accNumber)
         {
-            firstName = firstNameIn;
-            lastName = lastNameIn;
+            accountNumber = accNumber;
             InitializeComponent();
-            LBL_welcome.Content = $"Welcome {firstName} {lastName}";
+            LBL_welcome.Content = $"Welcome {accNumber}";
 
             SecondFrame.Content = "Please Choose!";
 
