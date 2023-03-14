@@ -8,12 +8,14 @@ namespace ATM.Classes
 {
     internal class Szamla
     {
+        public string szamlaId;
         public string szamlaNev;
         public int osszeg;
-        public Szamla(string szamlaNevBe, int osszegBe)
+        public Szamla(string szamlaId, string szamlaNev, int osszeg)
         {
-            szamlaNev = szamlaNevBe;
-            osszeg = osszegBe;
+            this.szamlaId = szamlaId;
+            this.szamlaNev = szamlaNev;
+            this.osszeg = osszeg;
         }
     }
 }

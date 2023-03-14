@@ -49,13 +49,13 @@ namespace ATM
                 conn.Open();
                 MySqlCommand cmd = Sql.cmd;
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT szamlaNev, szamlaOsszeg FROM szamla WHERE accountNumber = @accountNumber";
+                cmd.CommandText = "SELECT szamlaId,szamlaNev, szamlaOsszeg FROM szamla WHERE accountNumber = @accountNumber";
                 cmd.Parameters.AddWithValue("@accountNumber", accountNumber);
                 cmd.Prepare();
                 var result = cmd.ExecuteReader();
                 while (result.Read())
                 {
-                    szamlak.Add(new Szamla(result.GetString(0), result.GetInt32(1)));
+                    szamlak.Add(new Szamla(result.GetString(0), result.GetString(1), result.GetInt32(2)));
                 }
 
             }

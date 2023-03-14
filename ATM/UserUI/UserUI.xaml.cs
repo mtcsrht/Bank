@@ -26,13 +26,12 @@ namespace ATM
         private string firstName = string.Empty;
         private string lastName = string.Empty;
 
-        public UserUI(string accNumber)
+        public UserUI(string accountNumber)
         {
-            accountNumber = accNumber;
+            this.accountNumber = accountNumber;
             InitializeComponent();
             GetDataFromSql();
             LBL_welcome.Content = $"Welcome {firstName} {lastName}";
-            SecondFrame.Content = "Please Choose!";
 
         }
 
@@ -71,6 +70,12 @@ namespace ATM
         private void BTN_Logout_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new Uri("Login/Login.xaml",UriKind.Relative));
+        }
+
+        private void BTN_Deposit_Click(object sender, RoutedEventArgs e)
+        {
+            Deposit dep = new Deposit(accountNumber);
+            SecondFrame.Navigate(dep);
         }
     }
 }
