@@ -22,7 +22,7 @@ namespace ATM
         public MainWindow()
         {
             InitializeComponent();
-            _mainFrame.NavigationService.Navigate(new Uri("Login.xaml", UriKind.Relative));
+            _mainFrame.NavigationService.Navigate(new Uri("Login/Login.xaml", UriKind.Relative));
         }
     }
 }

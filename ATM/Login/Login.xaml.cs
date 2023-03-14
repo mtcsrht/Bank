@@ -16,14 +16,13 @@ using System.Security.Cryptography;
 using MySql.Data.MySqlClient;
 using Mysqlx.Crud;
 using Org.BouncyCastle.Utilities.Collections;
-
+using ATM.Classes;
 
 namespace ATM
 {
 
     public partial class Login : Page
     {
-
         public Login()
         {
             InitializeComponent();
@@ -46,28 +45,34 @@ namespace ATM
             const string firstName = "Golden";
             const string lastName = "Brown";
             */
-            string numberInput = TXT_Account.Text.Remove(4, 1); ;
+            string numberInput = TXT_Account.Text.Remove(4, 1);
             string passwordInput = PSWD_Passwd.Password;
-
-            if (!IsAccNumberExists(numberInput))
+            if (numberInput.Length != 13)
             {
-                MessageBox.Show("Couldn't find an account with this number", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-                MessageBox.Show(numberInput);
+                MessageBox.Show("The account number's length has to be 13 numbers", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             }
             else
             {
-                if (!CanLogin(numberInput, ComputeSHA256(passwordInput)))
+                if (!IsAccNumberExists(numberInput))
                 {
-                    MessageBox.Show("Wrong password!", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-                    MessageBox.Show(ComputeSHA256(passwordInput));
+                    MessageBox.Show("Couldn't find an account with this number", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                 }
                 else
                 {
-                    UpdateLastLogin(numberInput);
-                    UserUI ui = new UserUI(numberInput);
-                    this.NavigationService.Navigate(ui);
+                    if (!CanLogin(numberInput, ComputeSHA256(passwordInput)))
+                    {
+                        MessageBox.Show("Wrong password!", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        UpdateLastLogin(numberInput);
+                        UserUI ui = new UserUI(numberInput);
+                        this.NavigationService.Navigate(ui);
+                    }
                 }
             }
+
+            
 
         }
 
@@ -82,18 +87,21 @@ namespace ATM
         }
         private static void UpdateLastLogin(string accNumber)
         {
-            string connectionString = "server=localhost;user=root;pwd=;database=bank";
-            MySqlConnection conn = new MySqlConnection(connectionString);
+            SQL Sql = new SQL();
+            MySqlConnection conn = Sql.conn;
             try
             {
                 conn.Open();
-                string sql = $"UPDATE `accounts` SET `lastLogin`= NOW() WHERE accountNumber = {accNumber}";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                string sql = $"UPDATE `accounts` SET `lastLogin`= NOW() WHERE accountNumber = @accNumber";
+                MySqlCommand cmd = Sql.cmd;
+                cmd.CommandText = sql;
+                cmd.Connection = conn;
+                cmd.Parameters.AddWithValue("@accNumber", accNumber);
+                cmd.Prepare();
                 cmd.ExecuteNonQuery();
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
+            catch (Exception)
+            { 
                 conn.Close();
 
             }
@@ -101,13 +109,18 @@ namespace ATM
 
         private static bool IsAccNumberExists(string accNumber)
         {
-            string connectionString = "server=localhost;user=root;pwd=;database=bank";
-            MySqlConnection conn = new MySqlConnection(connectionString);
-            try
-            {
+            SQL Sql = new SQL();
+            MySqlConnection conn = Sql.conn;
+            try 
+            { 
+
                 conn.Open();
-                string sql = $"SELECT * FROM accounts WHERE accountNumber = {accNumber}";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                string sql = $"SELECT * FROM accounts WHERE accountNumber = @accNumber";
+                MySqlCommand cmd = Sql.cmd;
+                cmd.CommandText = sql;
+                cmd.Connection = conn;
+                cmd.Parameters.AddWithValue("@accNumber", accNumber);
+                cmd.Prepare();
                 var result = cmd.ExecuteScalar();
 
                 if (result != null)
@@ -121,9 +134,8 @@ namespace ATM
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.ToString());
                 conn.Close();
                 return false;
 
@@ -131,15 +143,18 @@ namespace ATM
         }
         private static bool CanLogin(string accnumber, string pwd)
         {
-            string connectionString = "server=localhost;user=root;pwd=;database=bank";
-            MySqlConnection conn = new MySqlConnection(connectionString);
-            pwd = pwd.Insert(0, "\"");
-            pwd = pwd.Insert(pwd.Length, "\"");
+            SQL Sql = new SQL();
+            MySqlConnection conn = Sql.conn;
             try
             {
                 conn.Open();
-                string sql = $"SELECT * FROM accounts WHERE accountNumber = {accnumber} AND password = {pwd}";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                string sql = $"SELECT * FROM accounts WHERE accountNumber = @accNumber AND password = @password";
+                MySqlCommand cmd = Sql.cmd;
+                cmd.CommandText = sql;
+                cmd.Connection = conn;
+                cmd.Parameters.AddWithValue("@accNumber", accnumber);
+                cmd.Parameters.AddWithValue("@password", pwd);
+                cmd.Prepare();
                 var result = cmd.ExecuteScalar();
 
                 if (result != null)
@@ -153,9 +168,8 @@ namespace ATM
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.ToString());
                 conn.Close();
                 return false;
 

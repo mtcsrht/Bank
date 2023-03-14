@@ -10,7 +10,7 @@
     <Grid Background="#FF0B0D21">
         <Label Content="Welcome to MaBank" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Bahnschrift" FontSize="24" Height="58" Width="288" Foreground="White"/>
         <Grid HorizontalAlignment="Center" Height="52" Margin="0,128,0,0" VerticalAlignment="Top">
-            <TextBox x:Name="TXT_Account" HorizontalAlignment="Left" Margin="0,29,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="142" Height="23" TextChanged="TXT_Account_TextChanged"/>
+            <TextBox x:Name="TXT_Account" HorizontalAlignment="Left" Margin="0,29,0,0" TextWrapping="Wrap" Text="1234-123456789" VerticalAlignment="Top" Width="142" Height="23" TextChanged="TXT_Account_TextChanged"/>
             <Label Content="Account number:" HorizontalAlignment="Left" VerticalAlignment="Top" Width="113" Foreground="White" FontFamily="Bahnschrift"/>
         </Grid>
         <Grid HorizontalAlignment="Center" Height="52" Margin="0,196,0,0" VerticalAlignment="Top" Width="142">
