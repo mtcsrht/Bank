@@ -14,9 +14,9 @@
             <ColumnDefinition Width="39*"/>
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
-        <Label x:Name="LBL_balance" Content="Balance: " HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="47" Width="214" Background="{x:Null}" Foreground="White" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="24" Grid.Column="1"/>
-        <ComboBox x:Name="DRP_Szamlak" HorizontalAlignment="Center" Margin="0,62,0,0" VerticalAlignment="Top" Width="134" Height="27" Grid.Column="1" SelectionChanged="DRP_Szamlak_SelectionChanged"/>
-        <Label x:Name="LBL_Osszeg" Content="Összeg:" HorizontalAlignment="Left" Margin="10,142,0,0" VerticalAlignment="Top" Height="31" Width="73" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="White" FontSize="18" Grid.Column="1" Visibility="Hidden"/>
-        <Label x:Name="LBL_Osszeg_Value" Content="" HorizontalAlignment="Center" Margin="0,142,0,0" VerticalAlignment="Top" Height="31" Width="214" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="White" FontSize="18" Grid.Column="1" Visibility="Hidden"/>
+        <Label x:Name="LBL_Balance_Title" Content="Balance: " HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="47" Width="214" Background="{x:Null}" Foreground="White" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="24" Grid.Column="1"/>
+        <ComboBox x:Name="DRP_Accounts" HorizontalAlignment="Center" Margin="0,62,0,0" VerticalAlignment="Top" Width="134" Height="27" Grid.Column="1" SelectionChanged="DRP_Accounts_SelectionChanged"/>
+        <Label x:Name="LBL_Balance_Header" Content="Összeg:" HorizontalAlignment="Left" Margin="10,142,0,0" VerticalAlignment="Top" Height="31" Width="73" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="White" FontSize="18" Grid.Column="1" Visibility="Hidden"/>
+        <Label x:Name="LBL_Balance_Value" Content="" HorizontalAlignment="Center" Margin="0,142,0,0" VerticalAlignment="Top" Height="31" Width="214" FontFamily="Bahnschrift" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="White" FontSize="18" Grid.Column="1" Visibility="Hidden"/>
     </Grid>
 </Page>

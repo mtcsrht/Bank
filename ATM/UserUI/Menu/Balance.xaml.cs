@@ -22,58 +22,65 @@ namespace ATM
     /// </summary>
     public partial class Balance : Page
     {
-        private string accountNumber;
-        private List<Szamla> szamla;
-        public Balance(string accountNumber)
+        private string customerNumber;
+        private List<Account> accounts;
+
+
+        public Balance(string customerNumber)
         {
             InitializeComponent();
-            this.accountNumber = accountNumber;
-            szamla = GetSzamlakFromSql();
-            FillUpSzamlaList();
+            this.customerNumber = customerNumber;
+            accounts = GetAccountsFromSql();
+            FillUpAccountsList();
 
         }
-        private void FillUpSzamlaList()
+
+
+        private void FillUpAccountsList()
         {
-            for (int i = 0; i < szamla.Count; i++)
+            for (int i = 0; i < accounts.Count; i++)
             {
-                DRP_Szamlak.Items.Add($"{szamla[i].szamlaNev}");
+                DRP_Accounts.Items.Add($"{accounts[i].accountName}");
             }
         }
-        private List<Szamla> GetSzamlakFromSql()
+
+
+        private List<Account> GetAccountsFromSql()
         {
             SQL Sql = new SQL();
             MySqlConnection conn = Sql.conn;
-            List<Szamla> szamlak = new List<Szamla>();
+            List<Account> tempAccounts= new List<Account>();
             try
             {
                 conn.Open();
                 MySqlCommand cmd = Sql.cmd;
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT szamlaId,szamlaNev, szamlaOsszeg FROM szamla WHERE accountNumber = @accountNumber";
-                cmd.Parameters.AddWithValue("@accountNumber", accountNumber);
+                cmd.CommandText = "SELECT accountId, accountName, accountBalance FROM accounts WHERE customerNumber = @customerNumber";
+                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
                 cmd.Prepare();
                 var result = cmd.ExecuteReader();
                 while (result.Read())
                 {
-                    szamlak.Add(new Szamla(result.GetString(0), result.GetString(1), result.GetInt32(2)));
+                    tempAccounts.Add(new Account(result.GetString(0), result.GetString(1), result.GetInt32(2)));
                 }
-
+                conn.Close();
             }
             catch (Exception)
             {
                 conn.Close();
             }
 
-            return szamlak;
+            return tempAccounts;
         }
 
-        private void DRP_Szamlak_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int index = DRP_Szamlak.SelectedIndex;
 
-            LBL_Osszeg.Visibility = Visibility.Visible;
-            LBL_Osszeg_Value.Visibility = Visibility.Visible;
-            LBL_Osszeg_Value.Content = szamla[index].osszeg + " HUF";
+        private void DRP_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int index = DRP_Accounts.SelectedIndex;
+
+            LBL_Balance_Header.Visibility = Visibility.Visible;
+            LBL_Balance_Value.Visibility = Visibility.Visible;
+            LBL_Balance_Value.Content = accounts[index].accountBalance + " HUF";
         }
     }
 }

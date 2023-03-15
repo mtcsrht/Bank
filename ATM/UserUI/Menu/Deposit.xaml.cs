@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,85 +23,97 @@ namespace ATM
     /// </summary>
     public partial class Deposit : Page
     {
-        private string accountNumber;
-        private List<Szamla> szamla;
-        public Deposit(string accountNumber)
+        private string customerNumber;
+        private List<Account> accounts;
+
+
+        public Deposit(string customerNumber)
         {
             InitializeComponent();
-            this.accountNumber = accountNumber;
-            szamla = GetSzamlakFromSql();
-            FillUpSzamlaList();
-        }
-        private void RefreshSzamlaList()
-        {
-            szamla = GetSzamlakFromSql();
-        }
-        private void FillUpSzamlaList()
-        {
-            for (int i = 0; i < szamla.Count; i++)
-            {
-                DRP_Szamlak.Items.Add($"{szamla[i].szamlaNev}");
-            }
-        }
-        private List<Szamla> GetSzamlakFromSql()
-        {
-            SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
-            List<Szamla> szamlak = new List<Szamla>();
-            try
-            {
-                conn.Open();
-                MySqlCommand cmd = Sql.cmd;
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT szamlaId, szamlaNev, szamlaOsszeg FROM szamla WHERE accountNumber = @accountNumber";
-                cmd.Parameters.AddWithValue("@accountNumber", accountNumber);
-                cmd.Prepare();
-                var result = cmd.ExecuteReader();
-                while (result.Read())
-                {
-                    szamlak.Add(new Szamla(result.GetString(0), result.GetString(1), result.GetInt32(2)));
-                }
-
-            }
-            catch (Exception)
-            {
-                conn.Close();
-            }
-
-            return szamlak;
+            this.customerNumber = customerNumber;
+            accounts = GetAccountsFromSql();
+            FillUpAccountsList();
         }
 
-        private void DRP_Szamlak_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void RefreshAccountsList()
         {
-            int index = DRP_Szamlak.SelectedIndex;
+            accounts = GetAccountsFromSql();
+        }
 
-            LBL_Osszeg.Visibility = Visibility.Visible;
-            LBL_Osszeg_Value.Visibility = Visibility.Visible;
-            LBL_Osszeg_Value.Content = szamla[index].osszeg + " HUF";
+        private void DRP_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int index = DRP_Accounts.SelectedIndex;
+
+            LBL_Balance_Header.Visibility = Visibility.Visible;
+            LBL_Balance_Value.Visibility = Visibility.Visible;
+            LBL_Balance_Value.Content = accounts[index].accountBalance + " HUF";
             TXT_Deposit_Value.Visibility = Visibility.Visible;
             BTN_Deposit.Visibility = Visibility.Visible;
         }
 
+
         private void BTN_Deposit_Click(object sender, RoutedEventArgs e)
         {
             int value;
-            int index = DRP_Szamlak.SelectedIndex;
+            int index = DRP_Accounts.SelectedIndex;
             if (int.TryParse(TXT_Deposit_Value.Text, out value))
             {
 
-                UpdateSzamla(value, szamla[index].szamlaId);
-                RefreshSzamlaList();
-                LBL_Osszeg_Value.Content = szamla[index].osszeg + " HUF";
+                UpdateAccounts(value, accounts[index].accountId);
+                RefreshAccountsList();
+                LBL_Balance_Value.Content = accounts[index].accountBalance + " HUF";
                 TXT_Deposit_Value.Text = string.Empty;
-                MessageBox.Show("Deposit was successful!", "Successful Deposit",MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Deposit was successful!", "Successful Deposit", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
                 MessageBox.Show("The input has to be numbers!", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
             }
+
         }
-        private void UpdateSzamla(int osszeg, string szamlaId)
+
+
+        private void FillUpAccountsList()
+        {
+            for (int i = 0; i < accounts.Count; i++)
+            {
+                DRP_Accounts.Items.Add($"{accounts[i].accountName}");
+            }
+        }
+
+
+        private List<Account> GetAccountsFromSql()
+        {
+            SQL Sql = new SQL();
+            MySqlConnection conn = Sql.conn;
+            List<Account> tempAccounts = new List<Account>();
+            try
+            {
+                conn.Open();
+                MySqlCommand cmd = Sql.cmd;
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT accountId, accountName, accountBalance FROM accounts WHERE customerNumber = @customerNumber";
+                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
+                cmd.Prepare();
+                var result = cmd.ExecuteReader();
+                while (result.Read())
+                {
+                    tempAccounts.Add(new Account(result.GetString(0), result.GetString(1), result.GetInt32(2)));
+                }
+                conn.Close();
+
+            }
+            catch (Exception)
+            {
+                conn.Close();
+            }
+
+            return tempAccounts;
+        }
+
+
+        private void UpdateAccounts(int depositValue, string accountId)
         {
             SQL Sql = new SQL();
             MySqlConnection conn = Sql.conn;
@@ -108,25 +121,29 @@ namespace ATM
             {
                 conn.Open();
                 MySqlCommand cmd = Sql.cmd;
+
                 cmd.Connection = Sql.conn;
-                cmd.CommandText = "UPDATE `szamla` SET `szamlaOsszeg`= szamlaOsszeg + @osszeg WHERE accountNumber = @accountNumber AND szamlaId = @szamlaId";
-                cmd.Parameters.AddWithValue("@osszeg", osszeg);
-                cmd.Parameters.AddWithValue("@accountNumber", accountNumber);
-                cmd.Parameters.AddWithValue("@szamlaId", szamlaId);
+                cmd.CommandText = "UPDATE accounts SET accountBalance = accountBalance + @depositValue WHERE customerNumber = @customerNumber AND accountId = @accountId";
+
+                cmd.Parameters.AddWithValue("@depositValue", depositValue);
+                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
+                cmd.Parameters.AddWithValue("@accountId", accountId);
+
                 cmd.Prepare();
                 cmd.ExecuteNonQuery();
-                DepositInsertTranzakcio(osszeg, szamlaId);
+
+                DepositInsertTranzakcio(depositValue, accountId);
                 conn.Close();
-                return true;
             }
             catch (Exception)
             {
                 conn.Close();
-                return false;
             }
             
         }
-        private void DepositInsertTranzakcio(int osszeg, string szamlaId)
+
+
+        private void DepositInsertTranzakcio(int depositValue, string accountId)
         {
             SQL Sql = new SQL();
             MySqlConnection conn = Sql.conn;
@@ -134,13 +151,16 @@ namespace ATM
             {
                 conn.Open();
                 MySqlCommand cmd = Sql.cmd;
-                cmd.Connection = Sql.conn;
 
-                cmd.CommandText = "INSERT INTO `tranzakciok`(`szamlaId`, `tipus`, `feldolgozottOsszeg`, `tranzakcioDate`) VALUES ( @szamlaId ,\"DEPOSIT\" , @osszeg , NOW())";
-                cmd.Parameters.AddWithValue("@szamlaId", szamlaId);
-                cmd.Parameters.AddWithValue("@osszeg", osszeg);
+                cmd.Connection = Sql.conn;
+                cmd.CommandText = "INSERT INTO `transactions`(`accountId`, `transactionType`, `processedAmount`, `transactionDate`) VALUES ( @accountId ,\"DEPOSIT\" , @depositValue , NOW())";
+
+                cmd.Parameters.AddWithValue("@accountId", accountId);
+                cmd.Parameters.AddWithValue("@depositValue", depositValue);
+
                 cmd.Prepare();
                 cmd.ExecuteNonQuery();
+
                 conn.Close();
             }
             catch (Exception)
@@ -148,5 +168,7 @@ namespace ATM
                 conn.Close();
             }
         }
+
+
     }
 }

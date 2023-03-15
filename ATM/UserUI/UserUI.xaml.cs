@@ -22,18 +22,20 @@ namespace ATM
     /// </summary>
     public partial class UserUI : Page
     {
-        private string accountNumber;
+        private string customerNumber;
         private string firstName = string.Empty;
         private string lastName = string.Empty;
 
-        public UserUI(string accountNumber)
+
+        public UserUI(string customerNumber)
         {
-            this.accountNumber = accountNumber;
+            this.customerNumber = customerNumber;
             InitializeComponent();
             GetDataFromSql();
             LBL_welcome.Content = $"Welcome {firstName} {lastName}";
 
         }
+
 
         private void GetDataFromSql()
         {
@@ -45,8 +47,8 @@ namespace ATM
                 conn.Open();
                 MySqlCommand cmd = Sql.cmd;
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT firstName, lastName FROM accounts WHERE accountNumber = @accountNumber";
-                cmd.Parameters.AddWithValue("@accountNumber", accountNumber);
+                cmd.CommandText = "SELECT firstName, lastName FROM customers WHERE customerNumber = @customerNumber";
+                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
                 cmd.Prepare();
                 var result = cmd.ExecuteReader();
                 if (result.Read())
@@ -61,21 +63,27 @@ namespace ATM
                 conn.Close();
             }
         }
+
+
         private void BTN_Balance_Click(object sender, RoutedEventArgs e)
         {
-            Balance bal = new Balance(accountNumber);
+            Balance bal = new Balance(customerNumber);
             SecondFrame.Navigate(bal);
         }
+
 
         private void BTN_Logout_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new Uri("Login/Login.xaml",UriKind.Relative));
         }
 
+
         private void BTN_Deposit_Click(object sender, RoutedEventArgs e)
         {
-            Deposit dep = new Deposit(accountNumber);
+            Deposit dep = new Deposit(customerNumber);
             SecondFrame.Navigate(dep);
         }
+
+
     }
 }
