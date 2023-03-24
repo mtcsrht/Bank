@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -31,13 +32,13 @@ namespace ATM
         {
             InitializeComponent();
             this.customerNumber = customerNumber;
-            accounts = GetAccountsFromSql();
+            accounts = new SQL().GetAccountsFromSql(customerNumber);
             FillUpAccountsList();
         }
 
         private void RefreshAccountsList()
         {
-            accounts = GetAccountsFromSql();
+            accounts = new SQL().GetAccountsFromSql(customerNumber);
         }
 
         private void DRP_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -83,43 +84,12 @@ namespace ATM
         }
 
 
-        private List<Account> GetAccountsFromSql()
-        {
-            SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
-            List<Account> tempAccounts = new List<Account>();
-            try
-            {
-                conn.Open();
-                MySqlCommand cmd = Sql.cmd;
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT accountId, accountName, accountBalance FROM accounts WHERE customerNumber = @customerNumber";
-                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
-                cmd.Prepare();
-                var result = cmd.ExecuteReader();
-                while (result.Read())
-                {
-                    tempAccounts.Add(new Account(result.GetString(0), result.GetString(1), result.GetInt32(2)));
-                }
-                conn.Close();
-
-            }
-            catch (Exception)
-            {
-                conn.Close();
-            }
-
-            return tempAccounts;
-        }
-
-
         private void UpdateAccounts(int depositValue, string accountId)
         {
             SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
             try
             {
-                conn.Open();
+                Sql.conn.Open();
                 MySqlCommand cmd = Sql.cmd;
 
                 cmd.Connection = Sql.conn;
@@ -132,40 +102,38 @@ namespace ATM
                 cmd.Prepare();
                 cmd.ExecuteNonQuery();
 
-                DepositInsertTranzakcio(depositValue, accountId);
-                conn.Close();
+                DepositInsertTransaction(depositValue, accountId);
+                Sql.conn.Close();
             }
             catch (Exception)
             {
-                conn.Close();
+                Sql.conn.Close();
             }
             
         }
 
 
-        private void DepositInsertTranzakcio(int depositValue, string accountId)
+        private void DepositInsertTransaction(int depositValue, string accountId)
         {
             SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
             try
             {
-                conn.Open();
-                MySqlCommand cmd = Sql.cmd;
+                Sql.conn.Open();
 
-                cmd.Connection = Sql.conn;
-                cmd.CommandText = "INSERT INTO `transactions`(`accountId`, `transactionType`, `processedAmount`, `transactionDate`) VALUES ( @accountId ,\"DEPOSIT\" , @depositValue , NOW())";
+                Sql.cmd.Connection = Sql.conn;
+                Sql.cmd.CommandText = "INSERT INTO `transactions`(`accountId`, `transactionType`, `processedAmount`, `transactionDate`) VALUES ( @accountId ,\"DEPOSIT\" , @depositValue , NOW())";
 
-                cmd.Parameters.AddWithValue("@accountId", accountId);
-                cmd.Parameters.AddWithValue("@depositValue", depositValue);
+                Sql.cmd.Parameters.AddWithValue("@accountId", accountId);
+                Sql.cmd.Parameters.AddWithValue("@depositValue", depositValue);
 
-                cmd.Prepare();
-                cmd.ExecuteNonQuery();
+                Sql.cmd.Prepare();
+                Sql.cmd.ExecuteNonQuery();
 
-                conn.Close();
+                Sql.conn.Close();
             }
             catch (Exception)
             {
-                conn.Close();
+                Sql.conn.Close();
             }
         }
 

@@ -30,7 +30,7 @@ namespace ATM
         {
             InitializeComponent();
             this.customerNumber = customerNumber;
-            accounts = GetAccountsFromSql();
+            accounts = new SQL().GetAccountsFromSql(customerNumber);
             FillUpAccountsList();
 
         }
@@ -43,36 +43,6 @@ namespace ATM
                 DRP_Accounts.Items.Add($"{accounts[i].accountName}");
             }
         }
-
-
-        private List<Account> GetAccountsFromSql()
-        {
-            SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
-            List<Account> tempAccounts= new List<Account>();
-            try
-            {
-                conn.Open();
-                MySqlCommand cmd = Sql.cmd;
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT accountId, accountName, accountBalance FROM accounts WHERE customerNumber = @customerNumber";
-                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
-                cmd.Prepare();
-                var result = cmd.ExecuteReader();
-                while (result.Read())
-                {
-                    tempAccounts.Add(new Account(result.GetString(0), result.GetString(1), result.GetInt32(2)));
-                }
-                conn.Close();
-            }
-            catch (Exception)
-            {
-                conn.Close();
-            }
-
-            return tempAccounts;
-        }
-
 
         private void DRP_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

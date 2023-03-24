@@ -17,6 +17,7 @@ using MySql.Data.MySqlClient;
 using Mysqlx.Crud;
 using Org.BouncyCastle.Utilities.Collections;
 using ATM.Classes;
+using System.Threading;
 
 namespace ATM
 {
@@ -27,9 +28,10 @@ namespace ATM
         {
             InitializeComponent();
         }
+        
 
 
-        static string ComputeSHA256(string s)
+        private static string ComputeSHA256(string s)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
@@ -38,35 +40,56 @@ namespace ATM
             }
         }
 
+        public bool IsSqlConnectionWorks()
+        {
+            SQL Sql = new SQL();
+            try
+            {
+                Sql.conn.Open();
+                Sql.conn.Close();
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
 
         private void BTN_Login_Click(object sender, RoutedEventArgs e)
         {
-            string customerNumberInput = TXT_Account.Text.Remove(4, 1);
-            string passwordInput = PSWD_Passwd.Password;
-            if (customerNumberInput.Length != 13)
+
+            if (IsSqlConnectionWorks())
             {
-                MessageBox.Show("The account number's length has to be 13 numbers", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            }
-            else
-            {
-                if (!IsAccNumberExists(customerNumberInput))
+
+                string customerNumberInput = TXT_Account.Text.Remove(4, 1);
+                string passwordInput = PSWD_Passwd.Password;
+                if (customerNumberInput.Length != 13)
                 {
-                    MessageBox.Show("Couldn't find an account with this number", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    MessageBox.Show("The account number's length has to be 13 numbers", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                 }
                 else
                 {
-                    if (!CanLogin(customerNumberInput, ComputeSHA256(passwordInput)))
+                    if (!IsAccNumberExists(customerNumberInput))
                     {
-                        MessageBox.Show("Wrong password!", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                        MessageBox.Show("Couldn't find an account with this number", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     }
                     else
                     {
-                        UpdateLastLogin(customerNumberInput);
-                        UserUI ui = new UserUI(customerNumberInput);
-                        this.NavigationService.Navigate(ui);
+                        if (!CanLogin(customerNumberInput, ComputeSHA256(passwordInput)))
+                        {
+                            MessageBox.Show("Wrong password!", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                        }
+                        else
+                        {
+                            UpdateLastLogin(customerNumberInput);
+                            UserUI ui = new UserUI(customerNumberInput);
+                            this.NavigationService.Navigate(ui);
+                        }
                     }
                 }
             }
+            else
+            {
+                MessageBox.Show("The SQL connection is not working.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            }
+           
 
             
 
@@ -86,21 +109,20 @@ namespace ATM
         private static void UpdateLastLogin(string customerNumber)
         {
             SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
             try
             {
-                conn.Open();
+                Sql.conn.Open();
                 string sql = $"UPDATE customers SET lastLogin = NOW() WHERE customerNumber = @customerNumber";
-                MySqlCommand cmd = Sql.cmd;
-                cmd.CommandText = sql;
-                cmd.Connection = conn;
-                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
-                cmd.Prepare();
-                cmd.ExecuteNonQuery();
+                Sql.cmd.CommandText = sql;
+                Sql.cmd.Connection = Sql.conn;
+                Sql.cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
+                Sql.cmd.Prepare();
+                Sql.cmd.ExecuteNonQuery();
+                Sql.conn.Close();
             }
             catch (Exception)
-            { 
-                conn.Close();
+            {
+                Sql.conn.Close();
 
             }
         }
@@ -109,33 +131,32 @@ namespace ATM
         private static bool IsAccNumberExists(string customerNumber)
         {
             SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
             try 
-            { 
+            {
 
-                conn.Open();
+                Sql.conn.Open();
                 string sql = $"SELECT * FROM customers WHERE customerNumber = @customerNumber";
                 MySqlCommand cmd = Sql.cmd;
-                cmd.CommandText = sql;
-                cmd.Connection = conn;
-                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
-                cmd.Prepare();
+                Sql.cmd.CommandText = sql;
+                Sql.cmd.Connection = Sql.conn;
+                Sql.cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
+                Sql.cmd.Prepare();
                 var result = cmd.ExecuteScalar();
 
                 if (result != null)
                 {
-                    conn.Close();
+                    Sql.conn.Close();
                     return true;
                 }
                 else
                 {
-                    conn.Close();
+                    Sql.conn.Close();
                     return false;
                 }
             }
             catch (Exception)
             {
-                conn.Close();
+                Sql.conn.Close();
                 return false;
 
             }
@@ -145,33 +166,31 @@ namespace ATM
         private static bool CanLogin(string customerNumber, string pwd)
         {
             SQL Sql = new SQL();
-            MySqlConnection conn = Sql.conn;
             try
             {
-                conn.Open();
+                Sql.conn.Open();
                 string sql = $"SELECT * FROM customers WHERE customerNumber = @customerNumber AND password = @password";
-                MySqlCommand cmd = Sql.cmd;
-                cmd.CommandText = sql;
-                cmd.Connection = conn;
-                cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
-                cmd.Parameters.AddWithValue("@password", pwd);
-                cmd.Prepare();
-                var result = cmd.ExecuteScalar();
+                Sql.cmd.CommandText = sql;
+                Sql.cmd.Connection = Sql.conn;
+                Sql.cmd.Parameters.AddWithValue("@customerNumber", customerNumber);
+                Sql.cmd.Parameters.AddWithValue("@password", pwd);
+                Sql.cmd.Prepare();
+                var result = Sql.cmd.ExecuteScalar();
 
                 if (result != null)
                 {
-                    conn.Close();
+                    Sql.conn.Close();
                     return true;
                 }
                 else
                 {
-                    conn.Close();
+                    Sql.conn.Close();
                     return false;
                 }
             }
             catch (Exception)
             {
-                conn.Close();
+                Sql.conn.Close();
                 return false;
 
             }

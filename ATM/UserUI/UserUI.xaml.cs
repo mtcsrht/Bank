@@ -84,6 +84,10 @@ namespace ATM
             SecondFrame.Navigate(dep);
         }
 
-
+        private void BTN_Withdraw_Click(object sender, RoutedEventArgs e)
+        {
+            Withdraw with = new Withdraw(customerNumber);
+            SecondFrame.Navigate(with);
+        }
     }
 }
