@@ -10,7 +10,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace ATM
@@ -23,6 +22,7 @@ namespace ATM
         public MainWindow()
         {
             InitializeComponent();
+            _mainFrame.NavigationService.Navigate(new Uri("Login/Login.xaml", UriKind.Relative));
         }
     }
 }
